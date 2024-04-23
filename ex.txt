@@ -9,3 +9,49 @@ block size- 100 500 200 300 600
 process size- 212 417 112 426
 
 fifo ref- 701203042303120
+
+
+Reader Process
+
+do {
+
+wait (mutex);
+
+readcnt++; // The number of readers has now increased by 1
+
+if (readcnt==1)
+
+wait (wrt); // this ensure no writer can enter if there is even one reader
+
+signal (mutex); // other readers can enter while this current reader is inside the critical section
+
+/* current reader performs reading here */
+
+wait (mutex);
+
+readcnt--; // a reader wants to leave
+
+if (readcnt == 0)
+
+//no reader is left in the critical section
+
+signal (wrt); // writers can enter
+
+signal (mutex); // reader leaves
+
+} while(true);
+
+
+Writer Process
+
+/* writer requests for critical section */
+
+wait(wrt);
+
+/* performs the write */
+
+// leaves the critical section
+
+signal(wrt);
+
+} while(true);
